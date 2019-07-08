@@ -18,6 +18,9 @@ public class GameManager : MonoBehaviour
     private List<Ship> _players;
     public GameObject shipPrefab;
 
+    //======= Physics =====//
+    private CollisionSystem _collisionSystem;
+
     //===== WEAPONS ======//
     public BulletPool pool;
     public int MaxPerPoolBullets;
@@ -29,7 +32,9 @@ public class GameManager : MonoBehaviour
     public IBullet BlasterBulletPrefab;
     
 
+    //===== GENERAL? ===========///
     public Transform worldSpaceContainer;
+    public GameBoundary boundary;
 
     private Coroutine _weaponCoroutine;
 
@@ -60,6 +65,7 @@ public class GameManager : MonoBehaviour
         _gameShouldUpdate = true;
 
         pool.Init();
+        boundary.Init();
 
         for (int i = 0; i < NumberOfPlayers; i++)
         {
@@ -76,7 +82,16 @@ public class GameManager : MonoBehaviour
             _players.Add(newShip);
         }
 
+
+        _collisionSystem = GetComponent<CollisionSystem>();
+        _collisionSystem.Init();
+
         _gameRoutine = StartCoroutine(GameRoutine());
+    }
+
+    public void AddEntityToCollisionSystem(ICollidingEntity entity)
+    {
+        _collisionSystem.AddEntity(ref entity);
     }
 
     public void PerformWeaponCoroutine(IEnumerator enumerator)
@@ -108,5 +123,6 @@ public class GameManager : MonoBehaviour
         {
             //player.Resolve(dt);
         }
+        _collisionSystem.CheckFrame();
     }
 }

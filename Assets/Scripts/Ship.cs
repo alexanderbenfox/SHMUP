@@ -14,13 +14,12 @@ struct PlayerInput
 }
 
 [RequireComponent(typeof(BoxCollider2D))]
-public class Ship : MonoBehaviour
+public class Ship : ICollidingEntity
 {
     //
     public Vector2 shootDirection;
     
     //private variables
-    private BoxCollider2D _hurtbox;
     private PlayerInput _lastFrame;
     private IWeapon _weapon;
 
@@ -39,7 +38,7 @@ public class Ship : MonoBehaviour
 
     public void Init()
     {
-        _hurtbox = this.GetComponent<BoxCollider2D>();
+        _collider = this.GetComponent<BoxCollider2D>();
         zone.Init();
         shootDirection = Vector2.right;
 
@@ -55,7 +54,8 @@ public class Ship : MonoBehaviour
             //Vector2 shotDirection = new Vector2(shootDirection.x, Vector2.Dot(thisFrame.movement, Vector2.up));
             _weapon.Shoot(transform.position, shootDirection.normalized);
         }
-        transform.Translate(thisFrame.movement * dt);
+
+        _dp = thisFrame.movement * dt;
     }
 
     //-------------------------------------------//
@@ -73,5 +73,15 @@ public class Ship : MonoBehaviour
             input.action = PlayerAction.NONE;
 
         return input;
+    }
+
+    public override Vector2 GetNextFramePosition()
+    {
+        return base.GetNextFramePosition();
+    }
+
+    public override void FinalizeFrame()
+    {
+        base.FinalizeFrame();
     }
 }

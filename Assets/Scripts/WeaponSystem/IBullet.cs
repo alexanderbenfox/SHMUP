@@ -3,16 +3,19 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(Collider2D))]
-public class IBullet : MonoBehaviour
+public class IBullet : ICollidingEntity
 {
-    private Collider2D _collider;
-    private Vector3 _velocity;
-
     public bool active = false;
+    protected Vector2 _velocity;
 
     protected delegate Vector3 MovementFunc(Vector2 vel, float lifetime, float dt);
     protected MovementFunc func;
     protected float _bulletLifetime;
+
+    public void Create()
+    {
+        GameManager.GM.AddEntityToCollisionSystem(this);
+    }
 
     public void Init(Vector2 initialSpeed)
     {
@@ -27,18 +30,19 @@ public class IBullet : MonoBehaviour
 
     public virtual void Loop(float dt)
     {
-        this.transform.position += (func(_velocity, _bulletLifetime, dt));
+        _dp = func(_velocity, _bulletLifetime, dt);
         _bulletLifetime += dt;
     }
 
-    public virtual void OnCollide()
-    {
-
-    }
 
     public virtual void OnDestruction()
     {
         _velocity = Vector2.zero;
         active = false;
+    }
+
+    public override void OnCollide(ICollidingEntity entity)
+    {
+        OnDestruction();
     }
 }

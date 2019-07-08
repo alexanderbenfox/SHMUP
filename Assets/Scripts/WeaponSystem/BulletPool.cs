@@ -20,6 +20,7 @@ public class BulletPool : MonoBehaviour
         if (_bullets.Count < GameManager.GM.MaxPerPoolBullets)
         {
             IBullet obj = GameObject.Instantiate<IBullet>(bulletPrefab) as IBullet;
+            obj.Create();
             _bullets.Add(obj);
             obj.Init(initialSpeed);
         }
