@@ -11,7 +11,10 @@ public class CollisionSystem : MonoBehaviour
         _entities = new List<ICollidingEntity>();
         ICollidingEntity[] arr = GameObject.FindObjectsOfType<ICollidingEntity>();
         foreach (ICollidingEntity entity in arr)
+        {
+            Debug.Log("Adding " + entity.name + " to the collision system.");
             _entities.Add(entity);
+        }
     }
 
     public void AddEntity(ref ICollidingEntity entity)
@@ -19,25 +22,29 @@ public class CollisionSystem : MonoBehaviour
         _entities.Add(entity);
     }
 
-    public void CheckFrame()
+    public void CheckFrame(float dt)
     {
         for(int i = 0; i < _entities.Count; i++)
         {
             ICollidingEntity entity1 = _entities[i];
-            for(int j = 0; j < _entities.Count; j++)
+            //triggers dont cause collisions
+            if (!entity1.isTrigger)
             {
-                if(i != j)
+                for (int j = 0; j < _entities.Count; j++)
                 {
-                    ICollidingEntity entity2 = _entities[j];
-                    if(ICollidingEntity.Collides(ref entity1, ref entity2))
+                    if (i != j)
                     {
-                        entity1.AdjustForCollision(entity2);
-                        entity1.OnCollide(entity2);
-                        entity2.OnCollide(entity1);
+                        ICollidingEntity entity2 = _entities[j];
+                        if (ICollidingEntity.Collides(ref entity1, ref entity2))
+                        {
+                            Debug.Log("Collision between " + entity1.name + " and " + entity2.name);
+                            entity1.OnCollide(entity2);
+                            //entity2.OnCollide(entity1);
+                        }
                     }
                 }
             }
-            entity1.FinalizeFrame();
+            entity1.FinalizeFrame(dt);
         }
     }
 }

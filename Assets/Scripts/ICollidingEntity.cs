@@ -6,48 +6,99 @@ using UnityEngine;
 public class ICollidingEntity : MonoBehaviour
 {
     protected BoxCollider2D _collider;
-    protected Vector2 _dp;
+    protected Vector2 _dp = new Vector2(0, 0);
+    protected Vector2 _force = new Vector2(0, 0);
     public BoxCollider2D GetCollider() { return _collider; }
+    public bool isTrigger = true;
+    public bool invertedCollider = false;
+
+    public string type = "";
 
 
     public virtual Vector2 GetNextFramePosition()
     {
-        return new Vector2(this.transform.position.x + _dp.x, this.transform.position.y + _dp.y);
+
+        return new Vector2(this.transform.position.x + _dp.x + _force.x, this.transform.position.y + _dp.y + _force.y);
     }
 
-    public virtual void FinalizeFrame()
+    public Rect GetNextRect()
     {
-        transform.Translate(_dp);
+        return new Rect(ToMinimumCorner(GetNextFramePosition()), _collider.size);
+    }
+
+    private Vector2 ToMinimumCorner(Vector2 center)
+    {
+        return new Vector2(center.x - GetCollider().size.x / 2, center.y - GetCollider().size.y / 2);
+    }
+
+    public virtual void FinalizeFrame(float dt)
+    {
+        transform.Translate(_dp + _force);
         _dp = Vector2.zero;
+        _force = Vector2.zero;
     }
 
     public virtual void OnCollide(ICollidingEntity entity)
-    {}
+    {
+        //if (!isTrigger)
+        //    AdjustForCollision(entity);
+    }
 
     public static bool Collides(ref ICollidingEntity e1, ref ICollidingEntity e2)
     {
-        Rect r1 = new Rect(e1.GetNextFramePosition(), e1.GetCollider().size);
-        Rect r2 = new Rect(e2.GetNextFramePosition(), e2.GetCollider().size);
-        return r1.Overlaps(r2);
+        if (e1 == null || e2 == null)
+            return false;
+        var overlap = e1.GetOverlap(e2);
+        return overlap.x != 0 || overlap.y != 0;
     }
 
     public void AdjustForCollision(ICollidingEntity other)
     {
-        Rect r1 = new Rect(GetNextFramePosition(), GetCollider().size);
-        Rect r2 = new Rect(other.GetNextFramePosition(), other.GetCollider().size);
+        Vector2 overlap = GetOverlap(other);
+        _force += -overlap;
+    }
 
-        Vector2 dir = (GetNextFramePosition() - new Vector2(transform.position.x, this.transform.position.y)).normalized;
-        Vector2 adjustment = Vector2.zero;
+    Vector2 GetOverlap(ICollidingEntity other)
+    {
+        Rect r1 = GetNextRect();
+        Rect r2 = other.GetNextRect();
 
-        if (dir.x > 0 && r1.xMax > r2.xMin)
-            adjustment += new Vector2(r1.xMax - r2.xMin, 0);
-        if (dir.x < 0 && r1.xMin > r2.xMax)
-            adjustment += new Vector2(r1.xMin - r2.xMax, 0);
-        if (dir.y > 0 && r1.yMax > r2.yMin)
-            adjustment += new Vector2(0, r1.yMax - r2.yMin);
-        if (dir.y < 0 && r1.yMin > r2.yMax)
-            adjustment += new Vector2(0, r1.yMin - r2.yMax);
+        Vector2 dir = (GetNextFramePosition() - new Vector2(this.transform.position.x, this.transform.position.y)).normalized;
 
-        _dp += adjustment;
+        Vector2 overlap = new Vector2(0, 0);
+        if (r1.Overlaps(r2))
+        {
+            if (!other.invertedCollider)
+            {
+                //collides on the right
+                if (dir.x > 0 && r1.xMax > r2.xMin)
+                    overlap.x += (r1.xMax - r2.xMin);
+                //collides on the left
+                if (dir.x < 0 && r1.xMin < r2.xMax)
+                    overlap.x -= (r2.xMax - r1.xMin);
+                //collides on the top
+                if (dir.y > 0 && r1.yMax > r2.yMin)
+                    overlap.y += (r1.yMax - r2.yMin);
+                //collides on the bottom
+                if (dir.y < 0 && r1.yMin < r2.yMax)
+                    overlap.y -= (r2.yMax - r1.yMin);
+            }
+            else
+            {
+                //collides on the right
+                if (dir.x > 0 && r1.xMax > r2.xMax)
+                    overlap.x += (r1.xMax - r2.xMax);
+                //collides on the left
+                if (dir.x < 0 && r1.xMin < r2.xMin)
+                    overlap.x -= (r2.xMin - r1.xMin);
+                //collides on the top
+                if (dir.y > 0 && r1.yMax > r2.yMax)
+                    overlap.y += (r1.yMax - r2.yMax);
+                //collides on the bottom
+                if (dir.y < 0 && r1.yMin < r2.yMin)
+                    overlap.y -= (r2.yMin - r1.yMin);
+            }
+        }
+        return overlap;
     }
 }

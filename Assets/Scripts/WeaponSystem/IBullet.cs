@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-[RequireComponent(typeof(Collider2D))]
+[RequireComponent(typeof(BoxCollider2D))]
 public class IBullet : ICollidingEntity
 {
     public bool active = false;
@@ -17,10 +17,12 @@ public class IBullet : ICollidingEntity
         GameManager.GM.AddEntityToCollisionSystem(this);
     }
 
-    public void Init(Vector2 initialSpeed)
+    public virtual void Init(Vector2 initialSpeed)
     {
         active = true;
         _velocity = initialSpeed;
+        _collider = this.GetComponent<BoxCollider2D>();
+        isTrigger = false;
         //linear movement function
         func = delegate (Vector2 vel, float lifetime, float dt)
         {
@@ -30,7 +32,7 @@ public class IBullet : ICollidingEntity
 
     public virtual void Loop(float dt)
     {
-        _dp = func(_velocity, _bulletLifetime, dt);
+        _dp = _velocity * dt;//func(_velocity, _bulletLifetime, dt);
         _bulletLifetime += dt;
     }
 
@@ -43,6 +45,7 @@ public class IBullet : ICollidingEntity
 
     public override void OnCollide(ICollidingEntity entity)
     {
-        OnDestruction();
+        if(entity.type != "Player")
+            OnDestruction();
     }
 }

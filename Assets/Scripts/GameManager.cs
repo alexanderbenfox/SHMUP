@@ -65,7 +65,12 @@ public class GameManager : MonoBehaviour
         _gameShouldUpdate = true;
 
         pool.Init();
-        boundary.Init();
+        //boundary.Init();
+        var boundaries = GameObject.FindObjectsOfType<GameBoundary>();
+        foreach (var bound in boundaries)
+        {
+            bound.Init();
+        }
 
         for (int i = 0; i < NumberOfPlayers; i++)
         {
@@ -123,6 +128,6 @@ public class GameManager : MonoBehaviour
         {
             //player.Resolve(dt);
         }
-        _collisionSystem.CheckFrame();
+        _collisionSystem.CheckFrame(dt);
     }
 }

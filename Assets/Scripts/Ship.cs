@@ -41,6 +41,8 @@ public class Ship : ICollidingEntity
         _collider = this.GetComponent<BoxCollider2D>();
         zone.Init();
         shootDirection = Vector2.right;
+        isTrigger = false;
+        type = "Player";
 
         ResetStatus();
     }
@@ -62,10 +64,11 @@ public class Ship : ICollidingEntity
 
     private PlayerInput ProcessInput()
     {
+        float horiz = Input.GetAxis("Horizontal") > 0 ? GameManager.GM.PlayerSpeedMultiplier : Input.GetAxis("Horizontal") < 0 ? -GameManager.GM.PlayerSpeedMultiplier : 0;
+        float vert = Input.GetAxis("Vertical") > 0 ? GameManager.GM.PlayerSpeedMultiplier : Input.GetAxis("Vertical") < 0 ? -GameManager.GM.PlayerSpeedMultiplier : 0;
+
         PlayerInput input;
-        input.movement = new Vector2(
-            GameManager.GM.PlayerSpeedMultiplier * Input.GetAxis("Horizontal"),
-            GameManager.GM.PlayerSpeedMultiplier * Input.GetAxis("Vertical"));
+        input.movement = new Vector2(horiz, vert);
 
         if (Input.GetKey(GameManager.GM.playerShootKey))
             input.action = PlayerAction.SHOOT;
@@ -80,8 +83,13 @@ public class Ship : ICollidingEntity
         return base.GetNextFramePosition();
     }
 
-    public override void FinalizeFrame()
+    public override void OnCollide(ICollidingEntity entity)
     {
-        base.FinalizeFrame();
+        base.OnCollide(entity);
+    }
+
+    public override void FinalizeFrame(float dt)
+    {
+        base.FinalizeFrame(dt);
     }
 }
