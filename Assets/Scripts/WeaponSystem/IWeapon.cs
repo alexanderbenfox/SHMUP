@@ -9,8 +9,11 @@ public class IWeapon
     protected IEnumerator _cooldown;
     protected bool _weaponOnCooldown;
 
-    public IWeapon(ref BulletPool pool)
+    protected Ship _owner;
+
+    public IWeapon(Ship owner, BulletPool pool)
     {
+        _owner = owner;
         _bulletPool = pool;
         _weaponOnCooldown = false;
     }
@@ -36,15 +39,15 @@ public class IWeapon
 
 public class BlasterWeapon : IWeapon
 {
-    public BlasterWeapon(ref BulletPool pool) : base(ref pool) { }
+    public BlasterWeapon(Ship owner, BulletPool pool) : base(owner, pool) { }
 
     public override void Shoot(Vector2 location, Vector2 direction)
     {
         if (!_weaponOnCooldown)
         {
-            _bulletPool.Create(location, direction, GameManager.GM.BlasterBulletPrefab);
+            _bulletPool.Create(location, direction);
             _weaponOnCooldown = true;
-            GameManager.GM.PerformWeaponCoroutine(WeaponAfterShotRoutine());
+            _owner.PerformWeaponCoroutine(WeaponAfterShotRoutine());
         }
     }
 

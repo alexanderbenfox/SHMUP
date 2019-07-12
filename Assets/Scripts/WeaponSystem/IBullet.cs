@@ -12,17 +12,19 @@ public class IBullet : ICollidingEntity
     protected MovementFunc func;
     protected float _bulletLifetime;
 
-    public void Create()
+    private Ship _owner;
+
+    public void Create(Ship owner)
     {
+        _collider = this.GetComponent<BoxCollider2D>();
+        _owner = owner;
         GameManager.GM.AddEntityToCollisionSystem(this);
     }
 
     public virtual void Init(Vector2 initialSpeed)
     {
-        active = true;
         _velocity = initialSpeed;
-        _collider = this.GetComponent<BoxCollider2D>();
-        isTrigger = false;
+        active = true;
         //linear movement function
         func = delegate (Vector2 vel, float lifetime, float dt)
         {
@@ -36,7 +38,6 @@ public class IBullet : ICollidingEntity
         _bulletLifetime += dt;
     }
 
-
     public virtual void OnDestruction()
     {
         _velocity = Vector2.zero;
@@ -45,7 +46,19 @@ public class IBullet : ICollidingEntity
 
     public override void OnCollide(ICollidingEntity entity)
     {
-        if(entity.type != "Player")
-            OnDestruction();
+        if (active)
+        {
+            if (entity.type != "Player" && !entity.nonPhysics)
+                OnDestruction();
+            else if(entity.type == "Player")
+            {
+                if (_owner != entity)
+                {
+                    Ship reciever = (Ship)entity;
+                    reciever.TakeDamage(1);
+                    OnDestruction();
+                }
+            }
+        }
     }
 }

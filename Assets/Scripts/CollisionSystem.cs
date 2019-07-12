@@ -28,7 +28,7 @@ public class CollisionSystem : MonoBehaviour
         {
             ICollidingEntity entity1 = _entities[i];
             //triggers dont cause collisions
-            if (!entity1.isTrigger)
+            if (entity1.isTrigger)
             {
                 for (int j = 0; j < _entities.Count; j++)
                 {

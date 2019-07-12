@@ -4,23 +4,28 @@ using UnityEngine;
 
 public class BulletPool : MonoBehaviour
 {
+    //======BULLET PREFABS ======//
+    public IBullet BlasterBulletPrefab;
+
     private List<IBullet> _bullets;
     private int _latestUsedBullet;
 
-    public void Init()
+    private Ship _owner;
+
+    public void Init(Ship owner)
     {
         _bullets = new List<IBullet>();
         _latestUsedBullet = 0;
     }
 
-    public void Create(Vector2 spawnLocation, Vector2 direction, IBullet bulletPrefab)
+    public void Create(Vector2 spawnLocation, Vector2 direction)
     {
         Vector2 initialSpeed = direction * GameManager.GM.BlastBulletSpeed;
 
         if (_bullets.Count < GameManager.GM.MaxPerPoolBullets)
         {
-            IBullet obj = GameObject.Instantiate<IBullet>(bulletPrefab) as IBullet;
-            obj.Create();
+            IBullet obj = GameObject.Instantiate<IBullet>(BlasterBulletPrefab, transform) as IBullet;
+            obj.Create(_owner);
             _bullets.Add(obj);
             obj.Init(initialSpeed);
         }

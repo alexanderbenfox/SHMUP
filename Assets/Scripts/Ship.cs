@@ -18,30 +18,45 @@ public class Ship : ICollidingEntity
 {
     //
     public Vector2 shootDirection;
+    public BulletPool bulletPool;
     
     //private variables
     private PlayerInput _lastFrame;
     private IWeapon _weapon;
+    private HealthBar _hpBar;
 
     public PlayerZone zone;
 
     //player statistics
     int _maxHealth;
+    [SerializeField]
     int _health;
+
+    private bool _controlledByAI;
+    private float _lifeTime = 0;
 
     private void ResetStatus()
     {
         _maxHealth = GameManager.GM.PlayerMaxHealth;
         _health = _maxHealth;
-        _weapon = new BlasterWeapon(ref GameManager.GM.pool);
     }
 
-    public void Init()
+    public void Init(bool isAI, HealthBar healthBar)
     {
+        _hpBar = healthBar;
+        bulletPool.Init(this);
+        _weapon = new BlasterWeapon(this, bulletPool);
+
+        _controlledByAI = isAI;
+        shootDirection = Vector2.right;
+        if (isAI)
+        {
+            shootDirection = Vector2.left;
+        }
+
         _collider = this.GetComponent<BoxCollider2D>();
         zone.Init();
-        shootDirection = Vector2.right;
-        isTrigger = false;
+        
         type = "Player";
 
         ResetStatus();
@@ -49,7 +64,7 @@ public class Ship : ICollidingEntity
 
     public void Loop(float dt)
     {
-        PlayerInput thisFrame = ProcessInput();
+        PlayerInput thisFrame = _controlledByAI ? AIInput() : ProcessInput();
 
         if(thisFrame.action == PlayerAction.SHOOT)
         {
@@ -57,20 +72,44 @@ public class Ship : ICollidingEntity
             _weapon.Shoot(transform.position, shootDirection.normalized);
         }
 
+        bulletPool.UpdateBullets(dt);
+
         _dp = thisFrame.movement * dt;
+        _lifeTime += dt;
+    }
+
+    public void TakeDamage(int damage)
+    {
+        _health -= damage;
+        _hpBar.ChangeValue((float)_health / (float)_maxHealth);
     }
 
     //-------------------------------------------//
 
     private PlayerInput ProcessInput()
     {
-        float horiz = Input.GetAxis("Horizontal") > 0 ? GameManager.GM.PlayerSpeedMultiplier : Input.GetAxis("Horizontal") < 0 ? -GameManager.GM.PlayerSpeedMultiplier : 0;
-        float vert = Input.GetAxis("Vertical") > 0 ? GameManager.GM.PlayerSpeedMultiplier : Input.GetAxis("Vertical") < 0 ? -GameManager.GM.PlayerSpeedMultiplier : 0;
+        float horiz = Input.GetAxis("Horizontal") > 0.25f ? GameManager.GM.PlayerSpeedMultiplier : Input.GetAxis("Horizontal") < -0.25f ? -GameManager.GM.PlayerSpeedMultiplier : 0;
+        float vert = Input.GetAxis("Vertical") > 0.25f ? GameManager.GM.PlayerSpeedMultiplier : Input.GetAxis("Vertical") < -0.25f ? -GameManager.GM.PlayerSpeedMultiplier : 0;
 
         PlayerInput input;
         input.movement = new Vector2(horiz, vert);
 
         if (Input.GetKey(GameManager.GM.playerShootKey))
+            input.action = PlayerAction.SHOOT;
+        else
+            input.action = PlayerAction.NONE;
+
+        return input;
+    }
+
+    private PlayerInput AIInput()
+    {
+        float vert = Mathf.Sin(_lifeTime) > 0.25f ? GameManager.GM.PlayerSpeedMultiplier : Mathf.Sin(_lifeTime) < -0.25f ? -GameManager.GM.PlayerSpeedMultiplier : 0;
+
+        PlayerInput input;
+        input.movement = new Vector2(0, vert);
+
+        if (Random.Range(0.0f, 1.0f) > .9)
             input.action = PlayerAction.SHOOT;
         else
             input.action = PlayerAction.NONE;
@@ -91,5 +130,13 @@ public class Ship : ICollidingEntity
     public override void FinalizeFrame(float dt)
     {
         base.FinalizeFrame(dt);
+    }
+
+    private Coroutine _weaponCoroutine;
+    public void PerformWeaponCoroutine(IEnumerator enumerator)
+    {
+        if (_weaponCoroutine != null)
+            StopCoroutine(_weaponCoroutine);
+        _weaponCoroutine = StartCoroutine(enumerator);
     }
 }

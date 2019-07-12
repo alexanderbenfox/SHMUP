@@ -5,6 +5,7 @@ using UnityEngine;
 public class GameManager : MonoBehaviour
 {
     private static GameManager _instance;
+    public bool initialized = false;
 
     //========================
     public float screenToWorldHeight;
@@ -15,28 +16,25 @@ public class GameManager : MonoBehaviour
     public KeyCode playerShootKey;
 
     //====== Player creation ====//
+    public HealthBar leftBar, rightBar;
+
     private List<Ship> _players;
-    public GameObject shipPrefab;
+    public GameObject leftShipPrefab;
+    public GameObject rightShipPrefab;
 
     //======= Physics =====//
     private CollisionSystem _collisionSystem;
 
     //===== WEAPONS ======//
-    public BulletPool pool;
     public int MaxPerPoolBullets;
     public float BlastBulletSpeed;
 
     public float WeaponCooldown;
-
-    //======BULLET PREFABS ======//
-    public IBullet BlasterBulletPrefab;
     
 
     //===== GENERAL? ===========///
     public Transform worldSpaceContainer;
     public GameBoundary boundary;
-
-    private Coroutine _weaponCoroutine;
 
     private bool _gameShouldUpdate;
     private Coroutine _gameRoutine;
@@ -64,7 +62,6 @@ public class GameManager : MonoBehaviour
         _players = new List<Ship>();
         _gameShouldUpdate = true;
 
-        pool.Init();
         //boundary.Init();
         var boundaries = GameObject.FindObjectsOfType<GameBoundary>();
         foreach (var bound in boundaries)
@@ -78,11 +75,12 @@ public class GameManager : MonoBehaviour
             float spawnY = 0;
 
             //create and initialize the new ship objects
-            GameObject obj = GameObject.Instantiate<GameObject>(shipPrefab, worldSpaceContainer);
+            GameObject obj = GameObject.Instantiate<GameObject>(i == 0 ? leftShipPrefab : rightShipPrefab, worldSpaceContainer);
             obj.transform.localPosition = new Vector2(spawnX, spawnY);
 
             Ship newShip = obj.GetComponentInChildren<Ship>();
-            newShip.Init();
+            //right now only the first spawned ship is player controlled
+            newShip.Init(i != 0, i == 0 ? leftBar : rightBar);
 
             _players.Add(newShip);
         }
@@ -91,19 +89,13 @@ public class GameManager : MonoBehaviour
         _collisionSystem = GetComponent<CollisionSystem>();
         _collisionSystem.Init();
 
-        _gameRoutine = StartCoroutine(GameRoutine());
+        //_gameRoutine = StartCoroutine(GameRoutine());
+        initialized = true;
     }
 
     public void AddEntityToCollisionSystem(ICollidingEntity entity)
     {
         _collisionSystem.AddEntity(ref entity);
-    }
-
-    public void PerformWeaponCoroutine(IEnumerator enumerator)
-    {
-        if (_weaponCoroutine != null)
-            StopCoroutine(_weaponCoroutine);
-        _weaponCoroutine = StartCoroutine(enumerator);
     }
 
     private IEnumerator GameRoutine()
@@ -115,10 +107,14 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    private void Update()
+    {
+        if (initialized)
+            Loop(Time.deltaTime);
+    }
+
     private void Loop(float dt)
     {
-        pool.UpdateBullets(dt);
-
         foreach(Ship player in _players)
         {
             player.Loop(dt);
