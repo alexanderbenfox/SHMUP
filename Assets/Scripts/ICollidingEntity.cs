@@ -8,6 +8,7 @@ public class ICollidingEntity : MonoBehaviour
     protected BoxCollider2D _collider;
     protected Vector2 _dp = new Vector2(0, 0);
     protected Vector2 _force = new Vector2(0, 0);
+    protected Vector2 _scaledSize = Vector2.zero;
     public BoxCollider2D GetCollider() { return _collider; }
 
     //triggers can trigger collisions with other colliders in space
@@ -28,12 +29,14 @@ public class ICollidingEntity : MonoBehaviour
 
     public Rect GetNextRect()
     {
-        return new Rect(ToMinimumCorner(GetNextFramePosition()), _collider.size);
+        if(_scaledSize == Vector2.zero)
+            _scaledSize = new Vector2(_collider.size.x * this.transform.localScale.x, _collider.size.y * this.transform.localScale.y);
+        return new Rect(ToMinimumCorner(GetNextFramePosition()), _scaledSize);
     }
 
     private Vector2 ToMinimumCorner(Vector2 center)
     {
-        return new Vector2(center.x - GetCollider().size.x / 2, center.y - GetCollider().size.y / 2);
+        return new Vector2(center.x - _scaledSize.x / 2, center.y - _scaledSize.y / 2);
     }
 
     public virtual void FinalizeFrame(float dt)

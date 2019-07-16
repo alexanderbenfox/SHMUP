@@ -26,15 +26,21 @@ public class GameManager : MonoBehaviour
     private CollisionSystem _collisionSystem;
 
     //===== WEAPONS ======//
+    public WeaponType startingWeapon;
+    public PowerUp powerUpPrefab;
     public int MaxPerPoolBullets;
     public float BlastBulletSpeed;
-
     public float WeaponCooldown;
+
+    public float WaveBulletFrequency;
+    public float WaveBulletAmplitude;
     
 
     //===== GENERAL? ===========///
     public Transform worldSpaceContainer;
     public GameBoundary boundary;
+    public GameTimer timer;
+    public float MaxRoundTime;
 
     private bool _gameShouldUpdate;
     private Coroutine _gameRoutine;
@@ -82,12 +88,16 @@ public class GameManager : MonoBehaviour
             //right now only the first spawned ship is player controlled
             newShip.Init(i != 0, i == 0 ? leftBar : rightBar);
 
+            newShip.ChangeWeapon(startingWeapon);
+
             _players.Add(newShip);
         }
 
 
         _collisionSystem = GetComponent<CollisionSystem>();
         _collisionSystem.Init();
+
+        timer.Init();
 
         //_gameRoutine = StartCoroutine(GameRoutine());
         initialized = true;
@@ -96,6 +106,19 @@ public class GameManager : MonoBehaviour
     public void AddEntityToCollisionSystem(ICollidingEntity entity)
     {
         _collisionSystem.AddEntity(ref entity);
+    }
+
+    public void DestroyObject(ICollidingEntity entity)
+    {
+        _collisionSystem.RemoveEntity(ref entity);
+    }
+
+    public void SpawnRandomPowerUp()
+    {
+        var pt = boundary.GetRandomPoint();
+        PowerUp powerUp = GameObject.Instantiate<PowerUp>(powerUpPrefab) as PowerUp;
+        powerUp.transform.position = pt;
+        powerUp.Init();
     }
 
     private IEnumerator GameRoutine()
@@ -124,6 +147,7 @@ public class GameManager : MonoBehaviour
         {
             //player.Resolve(dt);
         }
+        timer.OnUpdate(dt);
         _collisionSystem.CheckFrame(dt);
     }
 }

@@ -22,6 +22,12 @@ public class CollisionSystem : MonoBehaviour
         _entities.Add(entity);
     }
 
+    public void RemoveEntity(ref ICollidingEntity entity)
+    {
+        _entities.Remove(entity);
+        Destroy(entity.gameObject);
+    }
+
     public void CheckFrame(float dt)
     {
         for(int i = 0; i < _entities.Count; i++)

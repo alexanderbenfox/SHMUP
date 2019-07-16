@@ -8,8 +8,8 @@ public class IBullet : ICollidingEntity
     public bool active = false;
     protected Vector2 _velocity;
 
-    protected delegate Vector3 MovementFunc(Vector2 vel, float lifetime, float dt);
-    protected MovementFunc func;
+    public delegate Vector3 MovementFunc(Vector2 vel, float lifetime, float dt);
+    protected MovementFunc _func;
     protected float _bulletLifetime;
 
     private Ship _owner;
@@ -21,12 +21,17 @@ public class IBullet : ICollidingEntity
         GameManager.GM.AddEntityToCollisionSystem(this);
     }
 
+    public void SetMovementFunction(MovementFunc func)
+    {
+        _func = func; 
+    }
+
     public virtual void Init(Vector2 initialSpeed)
     {
         _velocity = initialSpeed;
         active = true;
         //linear movement function
-        func = delegate (Vector2 vel, float lifetime, float dt)
+        _func = delegate (Vector2 vel, float lifetime, float dt)
         {
             return vel * dt;
         };
@@ -34,7 +39,7 @@ public class IBullet : ICollidingEntity
 
     public virtual void Loop(float dt)
     {
-        _dp = _velocity * dt;//func(_velocity, _bulletLifetime, dt);
+        _dp = _func(_velocity, _bulletLifetime, dt);
         _bulletLifetime += dt;
     }
 

@@ -265,7 +265,7 @@ RectTransform:
     type: 3}
   m_PrefabInstance: {fileID: 828236282761057658}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &164426477
+--- !u!114 &164426479
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -517,6 +517,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 973869975}
+  - component: {fileID: 973869976}
   m_Layer: 5
   m_Name: Timer
   m_TagString: Untagged
@@ -544,6 +545,19 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 1}
+--- !u!114 &973869976
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 973869974}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5453331c71909224dbfa9ba1d882b063, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  timer: {fileID: 685497927}
 --- !u!1 &1155608521
 GameObject:
   m_ObjectHideFlags: 0
@@ -653,18 +667,27 @@ MonoBehaviour:
   screenToWorldHeight: 0
   screenToWorldWidth: 0
   NumberOfPlayers: 2
-  PlayerMaxHealth: 1
+  PlayerMaxHealth: 20
   PlayerSpeedMultiplier: 5
   playerShootKey: 32
+  leftBar: {fileID: 164426479}
+  rightBar: {fileID: 4084223884981628319}
   leftShipPrefab: {fileID: 3720875555760114637, guid: 1b03c85c73b6ee84b9a3ea205a3ae8e9,
     type: 3}
   rightShipPrefab: {fileID: 7246303683357790027, guid: 90e3e6d0a35ad2d4ca54c64bc4160cb5,
     type: 3}
+  startingWeapon: 0
+  powerUpPrefab: {fileID: 1320927086639675880, guid: ee8731b7a54628d41b0cc39035a498ab,
+    type: 3}
   MaxPerPoolBullets: 10
   BlastBulletSpeed: 20
   WeaponCooldown: 0.25
+  WaveBulletFrequency: 10
+  WaveBulletAmplitude: 12
   worldSpaceContainer: {fileID: 549279745}
   boundary: {fileID: 1835055365}
+  timer: {fileID: 973869976}
+  MaxRoundTime: 100
 --- !u!4 &1433163175
 Transform:
   m_ObjectHideFlags: 0

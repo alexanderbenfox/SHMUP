@@ -45,7 +45,8 @@ public class Ship : ICollidingEntity
     {
         _hpBar = healthBar;
         bulletPool.Init(this);
-        _weapon = new BlasterWeapon(this, bulletPool);
+
+        ChangeWeapon(WeaponType.Blaster);
 
         _controlledByAI = isAI;
         shootDirection = Vector2.right;
@@ -82,6 +83,14 @@ public class Ship : ICollidingEntity
     {
         _health -= damage;
         _hpBar.ChangeValue((float)_health / (float)_maxHealth);
+    }
+
+    public void ChangeWeapon(WeaponType weapon)
+    {
+        if (weapon == WeaponType.Blaster)
+            _weapon = new BlasterWeapon(this, bulletPool);
+        else if (weapon == WeaponType.Wave)
+            _weapon = new WaveWeapon(this, bulletPool);
     }
 
     //-------------------------------------------//

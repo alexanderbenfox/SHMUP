@@ -14,11 +14,12 @@ public class BulletPool : MonoBehaviour
 
     public void Init(Ship owner)
     {
+        _owner = owner;
         _bullets = new List<IBullet>();
         _latestUsedBullet = 0;
     }
 
-    public void Create(Vector2 spawnLocation, Vector2 direction)
+    public IBullet Create(Vector2 spawnLocation, Vector2 direction)
     {
         Vector2 initialSpeed = direction * GameManager.GM.BlastBulletSpeed;
 
@@ -34,7 +35,10 @@ public class BulletPool : MonoBehaviour
         _bullets[_latestUsedBullet].transform.position = spawnLocation;
         _bullets[_latestUsedBullet].Init(initialSpeed);
 
+        int lastBullet = _latestUsedBullet;
         _latestUsedBullet = (_latestUsedBullet + 1) % GameManager.GM.MaxPerPoolBullets;
+
+        return _bullets[lastBullet];
     }
 
     public void UpdateBullets(float dt)
