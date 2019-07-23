@@ -34,7 +34,6 @@ public class GameManager : MonoBehaviour
 
     public float WaveBulletFrequency;
     public float WaveBulletAmplitude;
-    
 
     //===== GENERAL? ===========///
     public Transform worldSpaceContainer;
@@ -118,7 +117,9 @@ public class GameManager : MonoBehaviour
         var pt = boundary.GetRandomPoint();
         PowerUp powerUp = GameObject.Instantiate<PowerUp>(powerUpPrefab) as PowerUp;
         powerUp.transform.position = pt;
-        powerUp.Init();
+        var p = (PowerUpType)Random.Range(0, 3);
+        //var p = PowerUpType.Reflector;
+        powerUp.Init(p);
     }
 
     private IEnumerator GameRoutine()

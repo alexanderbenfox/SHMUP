@@ -6,6 +6,7 @@ using UnityEngine.UI;
 public class GameTimer : MonoBehaviour
 {
     public Text timer;
+    public int spawnFrequency;
 
     private float _maxTime;
     private float _currentTime;
@@ -29,7 +30,7 @@ public class GameTimer : MonoBehaviour
             timer.text = _lastNumeral.ToString();
 
             //
-            if (_lastNumeral % 5 == 0)
+            if (_lastNumeral % spawnFrequency == 0)
                 GameManager.GM.SpawnRandomPowerUp();
         }
     }

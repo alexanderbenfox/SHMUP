@@ -78,6 +78,16 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 21300000, guid: 20cbd2bf072959b48ab2bce4f391e0e7,
         type: 3}
+    - target: {fileID: 7547967254347844893, guid: 1b03c85c73b6ee84b9a3ea205a3ae8e9,
+        type: 3}
+      propertyPath: m_SpriteTilingProperty.oldSize.x
+      value: 0.27
+      objectReference: {fileID: 0}
+    - target: {fileID: 7547967254347844893, guid: 1b03c85c73b6ee84b9a3ea205a3ae8e9,
+        type: 3}
+      propertyPath: m_SpriteTilingProperty.oldSize.y
+      value: 0.24
+      objectReference: {fileID: 0}
     - target: {fileID: 6277009904152834345, guid: 1b03c85c73b6ee84b9a3ea205a3ae8e9,
         type: 3}
       propertyPath: zone
@@ -88,6 +98,12 @@ PrefabInstance:
       propertyPath: bulletPool
       value: 
       objectReference: {fileID: 8414451736151262511}
+    - target: {fileID: 6277009904152834345, guid: 1b03c85c73b6ee84b9a3ea205a3ae8e9,
+        type: 3}
+      propertyPath: reflectorPrefab
+      value: 
+      objectReference: {fileID: 5260235596229630889, guid: b1cd9fb5091a3f8449ee60a1c38302c4,
+        type: 3}
     - target: {fileID: 7695771423465435915, guid: 1b03c85c73b6ee84b9a3ea205a3ae8e9,
         type: 3}
       propertyPath: m_RootOrder

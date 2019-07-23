@@ -201,7 +201,7 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 0.25, y: 0.23}
+    oldSize: {x: 0.3, y: 0.26}
     newSize: {x: 0.25, y: 0.23}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
@@ -230,6 +230,8 @@ MonoBehaviour:
   bulletPool: {fileID: 2591009122012250537}
   zone: {fileID: 161393122633596247}
   _health: 0
+  reflectorPrefab: {fileID: 1720543653178936684, guid: 25aed9f0683e5074e856bd1360fad089,
+    type: 3}
 --- !u!1 &7230131709777357438
 GameObject:
   m_ObjectHideFlags: 0

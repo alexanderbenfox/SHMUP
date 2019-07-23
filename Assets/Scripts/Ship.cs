@@ -35,10 +35,15 @@ public class Ship : ICollidingEntity
     private bool _controlledByAI;
     private float _lifeTime = 0;
 
+    //Ship AI Units
+    private List<IShipUnit> _activeUnits;
+    public ReflectorUnit reflectorPrefab;
+
     private void ResetStatus()
     {
         _maxHealth = GameManager.GM.PlayerMaxHealth;
         _health = _maxHealth;
+        _activeUnits = new List<IShipUnit>();
     }
 
     public void Init(bool isAI, HealthBar healthBar)
@@ -77,6 +82,11 @@ public class Ship : ICollidingEntity
 
         _dp = thisFrame.movement * dt;
         _lifeTime += dt;
+
+        for (int i = 0; i < _activeUnits.Count; i++)
+        {
+            _activeUnits[i].OnUpdate(dt);
+        }
     }
 
     public void TakeDamage(int damage)
@@ -91,6 +101,16 @@ public class Ship : ICollidingEntity
             _weapon = new BlasterWeapon(this, bulletPool);
         else if (weapon == WeaponType.Wave)
             _weapon = new WaveWeapon(this, bulletPool);
+    }
+
+    public void CreateReflector()
+    {
+        ReflectorUnit newReflector = GameObject.Instantiate<ReflectorUnit>(reflectorPrefab, GameManager.GM.worldSpaceContainer);
+        newReflector.transform.position = zone.GetRandomPoint();
+        newReflector.Init(this);
+        GameManager.GM.AddEntityToCollisionSystem(newReflector);
+
+        _activeUnits.Add(newReflector);
     }
 
     //-------------------------------------------//

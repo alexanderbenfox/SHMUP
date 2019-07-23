@@ -2,10 +2,20 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+public enum PowerUpType
+{
+    BlasterWeapon,
+    WaveWeapon,
+    Reflector
+}
+
 public class PowerUp : ICollidingEntity
 {
-    public void Init()
+    private PowerUpType _type;
+
+    public virtual void Init(PowerUpType pType)
     {
+        _type = pType;
         _collider = this.GetComponent<BoxCollider2D>();
         nonPhysics = true;
         isTrigger = true;
@@ -29,6 +39,26 @@ public class PowerUp : ICollidingEntity
 
     protected virtual void OnPlayer(Ship ship)
     {
+        if (_type == PowerUpType.BlasterWeapon)
+            BlasterWeapon(ship);
+        else if (_type == PowerUpType.WaveWeapon)
+            WaveWeapon(ship);
+        else if (_type == PowerUpType.Reflector)
+            CreateReflector(ship);
+    }
+
+    protected void BlasterWeapon(Ship ship)
+    {
+        ship.ChangeWeapon(WeaponType.Blaster);
+    }
+
+    protected void WaveWeapon(Ship ship)
+    {
         ship.ChangeWeapon(WeaponType.Wave);
+    }
+
+    protected void CreateReflector(Ship ship)
+    {
+        ship.CreateReflector();
     }
 }

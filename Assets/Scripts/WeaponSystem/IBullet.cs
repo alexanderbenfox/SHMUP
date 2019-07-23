@@ -13,9 +13,11 @@ public class IBullet : ICollidingEntity
     protected float _bulletLifetime;
 
     private Ship _owner;
+    public Ship OwnedBy { get { return _owner; } }
 
     public void Create(Ship owner)
     {
+        type = "Bullet";
         _collider = this.GetComponent<BoxCollider2D>();
         _owner = owner;
         GameManager.GM.AddEntityToCollisionSystem(this);
@@ -53,6 +55,8 @@ public class IBullet : ICollidingEntity
     {
         if (active)
         {
+            if (entity.type == "Destroy")
+                OnDestruction();
             if (entity.type != "Player" && !entity.nonPhysics)
                 OnDestruction();
             else if(entity.type == "Player")
