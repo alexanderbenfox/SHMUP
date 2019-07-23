@@ -11,15 +11,27 @@ public class IBullet : ICollidingEntity
     public delegate Vector3 MovementFunc(Vector2 vel, float lifetime, float dt);
     protected MovementFunc _func;
     protected float _bulletLifetime;
+    public Animator anim;
+
 
     private Ship _owner;
     public Ship OwnedBy { get { return _owner; } }
+
+    private SpriteRenderer _spriteRenderer;
+    private Sprite _originalSprite;
+
+    Coroutine destructionCoroutine;
+
 
     public void Create(Ship owner)
     {
         type = "Bullet";
         _collider = this.GetComponent<BoxCollider2D>();
         _owner = owner;
+
+        _spriteRenderer = this.GetComponent<SpriteRenderer>();
+        _originalSprite = _spriteRenderer.sprite;
+
         GameManager.GM.AddEntityToCollisionSystem(this);
     }
 
@@ -30,6 +42,13 @@ public class IBullet : ICollidingEntity
 
     public virtual void Init(Vector2 initialSpeed)
     {
+        if (destructionCoroutine != null)
+            StopCoroutine(destructionCoroutine);
+
+        _spriteRenderer.enabled = true;
+        anim.enabled = false;
+        _spriteRenderer.sprite = _originalSprite;
+
         _velocity = initialSpeed;
         active = true;
         //linear movement function
@@ -45,10 +64,26 @@ public class IBullet : ICollidingEntity
         _bulletLifetime += dt;
     }
 
+    
+
     public virtual void OnDestruction()
     {
         _velocity = Vector2.zero;
         active = false;
+        anim.enabled = true;
+        destructionCoroutine = StartCoroutine(PlayDestructionAnim());
+    }
+
+    private IEnumerator PlayDestructionAnim()
+    {
+        anim.Play("RedExplosion");
+        yield return new WaitForEndOfFrame();
+
+        float time = anim.GetCurrentAnimatorStateInfo(0).length;
+        yield return new WaitForSeconds(time);
+
+        destructionCoroutine = null;
+        _spriteRenderer.enabled = false;
     }
 
     public override void OnCollide(ICollidingEntity entity)

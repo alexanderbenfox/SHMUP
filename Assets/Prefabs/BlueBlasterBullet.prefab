@@ -10,7 +10,7 @@ PrefabInstance:
     - target: {fileID: 1622034576154522899, guid: df2300a095e4d224a97715df4fa32726,
         type: 3}
       propertyPath: m_Name
-      value: BlasterBullet
+      value: BlueBlasterBullet
       objectReference: {fileID: 0}
     - target: {fileID: 3000333207654986646, guid: df2300a095e4d224a97715df4fa32726,
         type: 3}
@@ -73,5 +73,16 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 21300000, guid: 3fc026e0baf883f44a2af0b38568e05e,
         type: 3}
+    - target: {fileID: 8536664658357108792, guid: df2300a095e4d224a97715df4fa32726,
+        type: 3}
+      propertyPath: anim
+      value: 
+      objectReference: {fileID: 9029834049562952337}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: df2300a095e4d224a97715df4fa32726, type: 3}
+--- !u!95 &9029834049562952337 stripped
+Animator:
+  m_CorrespondingSourceObject: {fileID: 4629836194387867124, guid: df2300a095e4d224a97715df4fa32726,
+    type: 3}
+  m_PrefabInstance: {fileID: 4400035823963174757}
+  m_PrefabAsset: {fileID: 0}
