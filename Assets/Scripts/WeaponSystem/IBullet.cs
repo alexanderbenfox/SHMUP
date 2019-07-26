@@ -9,6 +9,8 @@ public class IBullet : ICollidingEntity
     protected Vector2 _velocity;
 
     public delegate Vector3 MovementFunc(Vector2 vel, float lifetime, float dt);
+    public delegate void TimedCallback();
+
     protected MovementFunc _func;
     protected float _bulletLifetime;
     public Animator anim;
@@ -64,26 +66,32 @@ public class IBullet : ICollidingEntity
         _bulletLifetime += dt;
     }
 
-    
-
     public virtual void OnDestruction()
     {
         _velocity = Vector2.zero;
         active = false;
         anim.enabled = true;
-        destructionCoroutine = StartCoroutine(PlayDestructionAnim());
+
+        TimedCallback destructionCallback = delegate ()
+        {
+            destructionCoroutine = null;
+            _spriteRenderer.enabled = false;
+        };
+
+        destructionCoroutine =
+            StartCoroutine(
+                PlayTimedAnim(_owner.color == PlayerColor.RED ? "RedBulletExplosion" : "BlueBulletExplosion", destructionCallback));
     }
 
-    private IEnumerator PlayDestructionAnim()
+    private IEnumerator PlayTimedAnim(string animation, TimedCallback callback)
     {
-        anim.Play("RedExplosion");
+        anim.Play(animation, -1, 0);
         yield return new WaitForEndOfFrame();
 
         float time = anim.GetCurrentAnimatorStateInfo(0).length;
         yield return new WaitForSeconds(time);
 
-        destructionCoroutine = null;
-        _spriteRenderer.enabled = false;
+        callback();
     }
 
     public override void OnCollide(ICollidingEntity entity)

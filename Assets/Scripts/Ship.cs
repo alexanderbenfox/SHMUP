@@ -2,6 +2,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+public enum PlayerColor
+{
+    RED, BLUE
+}
+
 public enum PlayerAction
 {
     SHOOT, NONE
@@ -19,6 +24,7 @@ public class Ship : ICollidingEntity
     //
     public Vector2 shootDirection;
     public BulletPool bulletPool;
+    public SFXController sfxController;
     
     //private variables
     private PlayerInput _lastFrame;
@@ -27,10 +33,13 @@ public class Ship : ICollidingEntity
 
     public PlayerZone zone;
 
+    public PlayerColor color;
+
     //player statistics
     int _maxHealth;
     [SerializeField]
     int _health;
+    private bool _isDead = false;
 
     private bool _controlledByAI;
     private float _lifeTime = 0;
@@ -38,6 +47,8 @@ public class Ship : ICollidingEntity
     //Ship AI Units
     private List<IShipUnit> _activeUnits;
     public ReflectorUnit reflectorPrefab;
+
+    private SpriteRenderer _spriteRenderer;
 
     private void ResetStatus()
     {
@@ -52,6 +63,9 @@ public class Ship : ICollidingEntity
         bulletPool.Init(this);
 
         ChangeWeapon(WeaponType.Blaster);
+
+        sfxController.Init(10, transform);
+        _spriteRenderer = this.GetComponent<SpriteRenderer>();
 
         _controlledByAI = isAI;
         shootDirection = Vector2.right;
@@ -70,19 +84,22 @@ public class Ship : ICollidingEntity
 
     public void Loop(float dt)
     {
-        PlayerInput thisFrame = _controlledByAI ? AIInput() : ProcessInput();
-
-        if(thisFrame.action == PlayerAction.SHOOT)
+        if (!_isDead)
         {
-            //Vector2 shotDirection = new Vector2(shootDirection.x, Vector2.Dot(thisFrame.movement, Vector2.up));
-            _weapon.Shoot(transform.position, shootDirection.normalized);
+            PlayerInput thisFrame = _controlledByAI ? AIInput() : ProcessInput();
+
+            if (thisFrame.action == PlayerAction.SHOOT)
+            {
+                //Vector2 shotDirection = new Vector2(shootDirection.x, Vector2.Dot(thisFrame.movement, Vector2.up));
+                _weapon.Shoot(transform.position, shootDirection.normalized);
+            }
+            _lifeTime += dt;
+            _dp = thisFrame.movement * dt;
         }
+        else
+            _dp = Vector2.zero;
 
         bulletPool.UpdateBullets(dt);
-
-        _dp = thisFrame.movement * dt;
-        _lifeTime += dt;
-
         for (int i = 0; i < _activeUnits.Count; i++)
         {
             _activeUnits[i].OnUpdate(dt);
@@ -93,6 +110,9 @@ public class Ship : ICollidingEntity
     {
         _health -= damage;
         _hpBar.ChangeValue((float)_health / (float)_maxHealth);
+
+        if(_health <= 0)
+            StartCoroutine(OnDeath());
     }
 
     public void ChangeWeapon(WeaponType weapon)
@@ -114,6 +134,23 @@ public class Ship : ICollidingEntity
     }
 
     //-------------------------------------------//
+
+    private IEnumerator OnDeath()
+    {
+        _isDead = true;
+        _spriteRenderer.enabled = false;
+        GameManager.GM.DestroyObject(this, false);
+
+        int numDeathExplosions = 5;
+        float totalTime = .5f;
+        float interval = totalTime / (float)numDeathExplosions;
+
+        for(;numDeathExplosions > 0; numDeathExplosions--)
+        {
+            sfxController.SpawnSFXAnimation(GameManager.GM.GetRandomPoint(1, 1), color == PlayerColor.RED ? "RedExplosion" : "BlueExplosion");
+            yield return new WaitForSeconds(interval);
+        }
+    }
 
     private PlayerInput ProcessInput()
     {

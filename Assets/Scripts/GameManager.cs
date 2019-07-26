@@ -54,6 +54,13 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    public Vector2 GetRandomPoint(float height, float width)
+    {
+        float x = Random.Range(-width / 2, width / 2);
+        float y = Random.Range(-height / 2, height / 2);
+        return new Vector2(x, y);
+    }
+
     private void Awake()
     {
         Init();
@@ -88,6 +95,7 @@ public class GameManager : MonoBehaviour
             newShip.Init(i != 0, i == 0 ? leftBar : rightBar);
 
             newShip.ChangeWeapon(startingWeapon);
+            newShip.color = (PlayerColor)i;
 
             _players.Add(newShip);
         }
@@ -107,9 +115,12 @@ public class GameManager : MonoBehaviour
         _collisionSystem.AddEntity(ref entity);
     }
 
-    public void DestroyObject(ICollidingEntity entity)
+    public void DestroyObject(ICollidingEntity entity, bool destroy = true)
     {
-        _collisionSystem.RemoveEntity(ref entity);
+        if (destroy)
+            _collisionSystem.DestroyEntity(ref entity);
+        else
+            _collisionSystem.RemoveEntity(ref entity);
     }
 
     public void SpawnRandomPowerUp()

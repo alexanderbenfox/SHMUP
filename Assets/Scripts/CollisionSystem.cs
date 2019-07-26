@@ -25,6 +25,11 @@ public class CollisionSystem : MonoBehaviour
     public void RemoveEntity(ref ICollidingEntity entity)
     {
         _entities.Remove(entity);
+    }
+
+    public void DestroyEntity(ref ICollidingEntity entity)
+    {
+        _entities.Remove(entity);
         Destroy(entity.gameObject);
     }
 
