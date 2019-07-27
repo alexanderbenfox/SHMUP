@@ -118,8 +118,10 @@ public class Ship : ICollidingEntity
         _health -= damage;
         _hpBar.ChangeValue((float)_health / (float)_maxHealth);
 
-        if(_health <= 0)
+        if (_health <= 0)
             StartCoroutine(OnDeath());
+        else
+            StartCoroutine(OnHit());
     }
 
     public void ChangeWeapon(WeaponType weapon)
@@ -146,6 +148,7 @@ public class Ship : ICollidingEntity
     {
         _isDead = true;
         _spriteRenderer.enabled = false;
+        sfxController.Clear();
         GameManager.GM.DestroyObject(this, false);
 
         int numDeathExplosions = 5;
@@ -157,6 +160,13 @@ public class Ship : ICollidingEntity
             sfxController.SpawnSFXAnimation(GameManager.GM.GetRandomPoint(1, 1), color == PlayerColor.RED ? "RedExplosion" : "BlueExplosion");
             yield return new WaitForSeconds(interval);
         }
+    }
+
+    private IEnumerator OnHit()
+    {
+        _spriteRenderer.color = Color.red;
+        yield return new WaitForSeconds(0.1f);
+        _spriteRenderer.color = Color.white;
     }
 
     private PlayerInput ProcessInput()

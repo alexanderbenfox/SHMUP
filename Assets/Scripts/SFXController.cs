@@ -32,6 +32,16 @@ public class SFXController : MonoBehaviour
         _anchorPoint = anchor;
     }
 
+    public void Clear()
+    {
+        foreach(SFXRenderer r in _persistentRenderers)
+            Destroy(r.transform.gameObject);
+        _persistentRenderers.Clear();
+        foreach (SFXRenderer r in _renderers)
+            Destroy(r.transform.gameObject);
+        _renderers.Clear();
+    }
+
     public void SpawnSFXAnimation(Vector2 offset, string anim, bool flip = false)
     {
         if(_renderers.Count < _limit)
