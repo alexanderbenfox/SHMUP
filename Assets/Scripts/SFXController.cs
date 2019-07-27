@@ -17,6 +17,9 @@ public class SFXController : MonoBehaviour
     public delegate void SFXRendererCallback(SFXRenderer sfx);
 
     private Transform _anchorPoint;
+
+    private List<SFXRenderer> _persistentRenderers;
+
     private List<SFXRenderer> _renderers;
     private int _current = 0;
     private int _limit;
@@ -24,11 +27,12 @@ public class SFXController : MonoBehaviour
     public void Init(int rendererLimit, Transform anchor)
     {
         _renderers = new List<SFXRenderer>();
+        _persistentRenderers = new List<SFXRenderer>();
         _limit = rendererLimit;
         _anchorPoint = anchor;
     }
 
-    public void SpawnSFXAnimation(Vector2 offsetFromController, string anim)
+    public void SpawnSFXAnimation(Vector2 offset, string anim, bool flip = false)
     {
         if(_renderers.Count < _limit)
         {
@@ -37,11 +41,26 @@ public class SFXController : MonoBehaviour
 
         SFXRenderer sfx = _renderers[_current];
 
-        sfx.transform.position = _anchorPoint.position + (Vector3)offsetFromController;
+        sfx.transform.position = _anchorPoint.position + (Vector3)offset;
         PlayAnimation(sfx, anim);
         _current = (_current + 1) % _limit;
     }
 
+    public void SpawnPersistentSFXAnimation(Vector2 offset, Vector2 scale, string anim, bool flip = false)
+    {
+        _persistentRenderers.Add(CreateSFXUnit());
+
+        var sfx = _persistentRenderers[_persistentRenderers.Count - 1];
+        sfx.transform.parent = _anchorPoint.transform;
+
+        sfx.transform.localPosition = (Vector3)offset;
+        sfx.transform.localScale = scale;
+        sfx.spriteRenderer.flipX = flip;
+
+        PlayLoopingAnimation(sfx, anim);
+    }
+
+    //=========== PRIVATE ================/
     
     private void PlayAnimation(SFXRenderer sfx, string anim)
     {
@@ -62,6 +81,21 @@ public class SFXController : MonoBehaviour
                 PlayTimedAnim(anim, sfx, callback));
     }
 
+    private void PlayLoopingAnimation(SFXRenderer sfx, string anim)
+    {
+        if (sfx.currentAction != null)
+            StopCoroutine(sfx.currentAction);
+
+        SFXRendererCallback callback = delegate (SFXRenderer sfxR) {};
+
+        sfx.spriteRenderer.enabled = true;
+        sfx.animator.enabled = true;
+
+        sfx.currentAction =
+            StartCoroutine(
+                PlayLoopedAnim(anim, sfx, callback));
+    }
+
     private IEnumerator PlayTimedAnim(string animation, SFXRenderer renderer, SFXRendererCallback callback)
     {
         renderer.animator.Play(animation, -1, 0);
@@ -71,6 +105,20 @@ public class SFXController : MonoBehaviour
         yield return new WaitForSeconds(time);
 
         callback(renderer);
+    }
+
+    private IEnumerator PlayLoopedAnim(string animation, SFXRenderer renderer, SFXRendererCallback callback)
+    {
+        renderer.animator.Play(animation, -1, 0);
+        yield return new WaitForEndOfFrame();
+
+        while (true)
+        {
+            float time = renderer.animator.GetCurrentAnimatorStateInfo(0).length;
+            yield return new WaitForSeconds(time);
+
+            callback(renderer);
+        }
     }
 
     private SFXRenderer CreateSFXUnit()

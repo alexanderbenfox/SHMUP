@@ -79,6 +79,13 @@ public class Ship : ICollidingEntity
         
         type = "Player";
 
+        //spawn thrusters
+        float f = (2.5f / 1.91f);
+        //float f = Mathf.Sqrt(2);
+        var thrusterPosition = new Vector2((shootDirection.x * -1) * _spriteRenderer.size.x / f, 0);
+        var thrustersAnimName = isAI ? "Thrusters2" : "Thrusters";
+        sfxController.SpawnPersistentSFXAnimation(thrusterPosition, new Vector2(.95f, .95f), thrustersAnimName, shootDirection == Vector2.left);
+
         ResetStatus();
     }
 
