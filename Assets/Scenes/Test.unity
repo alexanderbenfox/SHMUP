@@ -668,7 +668,7 @@ MonoBehaviour:
   screenToWorldHeight: 0
   screenToWorldWidth: 0
   NumberOfPlayers: 2
-  PlayerMaxHealth: 20
+  PlayerMaxHealth: 10
   PlayerSpeedMultiplier: 5
   playerShootKey: 32
   leftBar: {fileID: 164426479}
