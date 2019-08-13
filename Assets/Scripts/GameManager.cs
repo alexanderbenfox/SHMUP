@@ -4,6 +4,9 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
+    public static string p1Color = "#FF6D00";
+
+
     private static GameManager _instance;
     public bool initialized = false;
 
